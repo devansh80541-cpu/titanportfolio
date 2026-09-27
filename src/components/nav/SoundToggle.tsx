@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
-import { isSoundEnabled, play, setSoundEnabled } from "@/lib/sound";
+import { isSoundEnabled, play, playBackgroundMusic, setSoundEnabled } from "@/lib/sound";
 
 /**
  * Sonic UI mute toggle — persists to localStorage. Icon pops with a
@@ -11,10 +11,14 @@ import { isSoundEnabled, play, setSoundEnabled } from "@/lib/sound";
  * when switching sound ON.
  */
 export default function SoundToggle() {
-  const [on, setOn] = useState(false);
+  const [on, setOn] = useState(true);
 
   useEffect(() => {
-    setOn(isSoundEnabled());
+    const active = isSoundEnabled();
+    setOn(active);
+    if (active) {
+      playBackgroundMusic();
+    }
   }, []);
 
   return (

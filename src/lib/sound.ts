@@ -61,12 +61,12 @@ export function pauseBackgroundMusic() {
 }
 
 function readPreference(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") return true;
   try {
     const pref = window.localStorage.getItem(STORAGE_KEY);
-    return pref === "on";
+    return pref !== "off"; // ON by default unless explicitly turned off
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -78,7 +78,7 @@ function writePreference(on: boolean) {
   }
 }
 
-let enabled = false; // SSR default; hydrated from storage on client
+let enabled = true; // SSR default; ON by default
 if (typeof window !== "undefined") enabled = readPreference();
 
 export function isSoundEnabled(): boolean {
@@ -118,8 +118,13 @@ export function initSoundGestures() {
     }
   };
 
+  if (enabled) {
+    playBackgroundMusic();
+  }
+
   window.addEventListener("pointerdown", unlock, { passive: true });
   window.addEventListener("keydown", unlock, { passive: true });
+  window.addEventListener("scroll", unlock, { passive: true });
 }
 
 /** One oscillator + gain envelope. Exponential ramps = percussive blip. */
