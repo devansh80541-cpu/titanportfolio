@@ -25,7 +25,8 @@ export default function SoundToggle() {
         setSoundEnabled(next);
         if (next) play("toggle");
       }}
-      aria-label={on ? "Mute interface sounds" : "Unmute interface sounds"}
+      aria-label={on ? "Mute Paparazzi background music" : "Unmute Paparazzi background music"}
+      title={on ? "Mute Paparazzi & Sounds" : "Play Paparazzi & Sounds"}
       aria-pressed={on}
       data-cursor="hover"
       className="theme-fade relative grid size-9 place-items-center rounded-full border border-line text-muted transition-colors duration-200 hover:border-accent hover:text-fg active:scale-95"

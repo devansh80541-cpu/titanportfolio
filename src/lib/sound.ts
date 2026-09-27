@@ -30,12 +30,43 @@ let master: GainNode | null = null;
 let gesturesBound = false;
 let lastHoverAt = 0;
 
+let bgAudio: HTMLAudioElement | null = null;
+
+function getBGAudio(): HTMLAudioElement | null {
+  if (typeof window === "undefined") return null;
+  if (!bgAudio) {
+    bgAudio = new Audio("/paparazzi.mp3");
+    bgAudio.loop = true;
+    bgAudio.volume = 0.5;
+  }
+  return bgAudio;
+}
+
+export function playBackgroundMusic() {
+  if (typeof window === "undefined") return;
+  const audio = getBGAudio();
+  if (audio && audio.paused) {
+    audio.play().catch(() => {
+      // Browser autoplay restriction handling
+    });
+  }
+}
+
+export function pauseBackgroundMusic() {
+  if (typeof window === "undefined") return;
+  const audio = getBGAudio();
+  if (audio && !audio.paused) {
+    audio.pause();
+  }
+}
+
 function readPreference(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    return window.localStorage.getItem(STORAGE_KEY) !== "off";
+    const pref = window.localStorage.getItem(STORAGE_KEY);
+    return pref === "on";
   } catch {
-    return true; // storage blocked — default to on
+    return false;
   }
 }
 
@@ -47,7 +78,7 @@ function writePreference(on: boolean) {
   }
 }
 
-let enabled = true; // SSR default; hydrated from storage on first client read
+let enabled = false; // SSR default; hydrated from storage on client
 if (typeof window !== "undefined") enabled = readPreference();
 
 export function isSoundEnabled(): boolean {
@@ -57,6 +88,11 @@ export function isSoundEnabled(): boolean {
 export function setSoundEnabled(on: boolean) {
   enabled = on;
   writePreference(on);
+  if (on) {
+    playBackgroundMusic();
+  } else {
+    pauseBackgroundMusic();
+  }
 }
 
 /** Create the AudioContext on the first user gesture. Idempotent. */
@@ -77,6 +113,9 @@ export function initSoundGestures() {
       master.connect(ctx.destination);
     }
     if (ctx.state === "suspended") void ctx.resume();
+    if (enabled) {
+      playBackgroundMusic();
+    }
   };
 
   window.addEventListener("pointerdown", unlock, { passive: true });
