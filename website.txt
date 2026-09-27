@@ -1,0 +1,25 @@
+1)https://xtitankai.vercel.app/
+ABOUT THIS-
+THIS WEBSITE IS ABOUT ANIME STRAMING AND ANIME SHOWCASE (ELABORATE IT)
+
+2)https://titan-estates.netlify.app/
+ABOUT THIS-
+THIS WEBSITE IS ABOUT PROPERTIE S(ELABORATE IT)
+
+3)https://cakes-and-bakes-ten.vercel.app/
+ABOUT THIS 
+ANTIGRAVITY WRITE BY URSELF BUT THIS WEBSITE IS ABOUT CAKES/BAKERY (ELABORATE IT)
+
+4)titanbrew.netlify.app
+ABOUT THIS-
+ANTIGRAVITY WRITE BY URSELF BUT THIS WEBSITE IS ABOUT CAFE (ELABORATE IT)
+
+5)luffyxtitan.netlify.app
+ABOUT THIS WEB--
+An interactive hero banner where moving your cursor over Monkey D. Luffy carves a glowing comet trail that reveals Gear 5 (Nika) Luffy underneath. Built with a single HTML5 <canvas>, no frameworks, no build step.
+The effect uses a smoothed (lerped) cursor that trails a fading line of circles. Those circles act as a mask: the top image is composited into the trail shape with source-in, so the second image appears in a tapering comet that streaks behind the pointer — finished with a white-gold "awakening" glow on the cursor head.
+
+6)uchihaxtitan.netlify.app
+
+ABOUT THIS-
+itachi is a single-page, anime-inspired interactive showcase for Uchiha Itachi from Naruto. It uses scroll, pointer movement, canvas rendering, WebGL effects, synthesized thunder, and pre-rendered image sequences to create a cinematic visual experience rather than a conventional application.

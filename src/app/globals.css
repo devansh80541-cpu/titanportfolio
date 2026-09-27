@@ -1,0 +1,1232 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   TITAN FX — Design Tokens
+   Graphite & Alabaster · Champagne / Terracotta micro-states
+   ============================================================ */
+
+:root,
+[data-theme="dark"] {
+  --bg: #0f1012;
+  --bg-surface: #18191c;
+  --bg-elevated: #1e1f23;
+  --fg: #e6e6e1;
+  --fg-muted: #8a8a85;
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #c5a880;
+  --accent2: #b85b35;
+}
+
+/* Light editorial mode — swapped via ScrollTrigger on data-theme */
+[data-theme="light"] {
+  --bg: #f4f4f0;
+  --bg-surface: #ebebe5;
+  --bg-elevated: #e3e3dc;
+  --fg: #1a1a1a;
+  --fg-muted: #6e6e68;
+  --border: rgba(26, 26, 26, 0.1);
+  --accent: #b85b35;
+  --accent2: #c5a880;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--bg-surface);
+  --color-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent2);
+
+  --font-display: var(--font-syne), "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale from the spec */
+  --text-hero: clamp(3.5rem, 8vw, 11rem);
+  --text-section: clamp(2.5rem, 5vw, 6rem);
+  --text-card: clamp(1.5rem, 2.5vw, 3rem);
+  --text-body: clamp(1rem, 1.2vw, 1.25rem);
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: auto; /* Lenis owns scrolling */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  overflow-x: clip; /* clip (not hidden) — safe with ScrollTrigger pinning */
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+.theme-fade {
+  transition: background-color 0.6s ease, color 0.6s ease, border-color 0.6s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: #0f1012;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+
+/* Custom cursor replaces the native one on precise pointers only */
+@media (hover: hover) and (pointer: fine) {
+  html.custom-cursor,
+  html.custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────── */
+
+/* Film grain overlay (feTurbulence) */
+.noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+
+  opacity: 0.04;
+}
+
+/* Animated underline that grows from the left */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Hollow display type */
+.text-outline {
+  -webkit-text-stroke: 1px var(--fg);
+  color: transparent;
+}
+
+/* ── Reduced motion: kill decorative animation at the root ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   CSS scroll-driven motion — compositor-sampled, zero JS/frame
+   Progress is read natively from scroll position every frame and
+   paired with Lenis' interpolated input for glassy smoothness.
+   Elements opt in declaratively:
+     data-reveal        rise + fade in on viewport entry
+     data-parallax      continuous cqh drift across the passage
+     data-drift         fade + rise out while leaving (exit range)
+   Progressively enhanced: without animation-timeline support the
+   base states remain fully visible.
+   ============================================================ */
+:root {
+  --ease-scroll: cubic-bezier(0.7, 0.1, 0.5, 0.9);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* Entry reveal — distance is tunable per element via --reveal-y */
+@keyframes reveal-y {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-y, 48px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The cqh pattern: displacement measured in container/viewport heights.
+   Without an ancestor container, cqh falls back to the small viewport;
+   inside container-type: size elements it resolves to that container. */
+@keyframes parallax-y {
+  from {
+    transform: translateY(calc(var(--parallax, 8) * -1cqh));
+  }
+  to {
+    transform: translateY(calc(var(--parallax, 8) * 1cqh));
+  }
+}
+
+/* Exit drift — the snippet's translateY(100cqh) idea, scaled to taste */
+@keyframes y-animation {
+  to {
+    opacity: 0;
+    transform: translateY(calc(var(--drift, 10) * -1cqh));
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation-name: reveal-y;
+      animation-duration: auto; /* ignored — scroll drives progress */
+      animation-timing-function: var(--ease-scroll);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+      will-change: transform, opacity;
+    }
+    [data-reveal~="late"] {
+      animation-range: entry 12% entry 72%;
+    }
+    [data-reveal~="later"] {
+      animation-range: entry 20% entry 85%;
+    }
+    [data-reveal~="subtle"] {
+      --reveal-y: 2.5cqh;
+    }
+
+    [data-parallax] {
+      animation-name: parallax-y;
+      animation-duration: auto;
+      animation-timing-function: linear; /* true positional mapping */
+      animation-fill-mode: both;
+      animation-timeline: view();
+      will-change: transform;
+    }
+    /* eased variant — the custom bezier bends the depth response */
+    [data-parallax~="smooth"] {
+      animation-timing-function: var(--ease-scroll);
+    }
+
+    [data-drift] {
+      animation-name: y-animation;
+      animation-duration: auto;
+      animation-timing-function: var(--ease-scroll);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+      will-change: transform, opacity;
+    }
+  }
+}
+
+/* ============================================================
+   Works — sticky card stack
+   The Kevin Powell card-pile grain, rebuilt on modern scroll
+   timelines (the legacy @scroll-timeline API was removed from
+   Chromium 115+). Cards are sticky grid rows — each new card
+   pins below the pile while its INNER content (which does NOT
+   stick) scales down over its own view() passage, so progress
+   keeps advancing even while the shell is visually pinned.
+   Graceful: without animation-timeline support the stack still
+   pins; it simply stays full-size (no shrink).
+   Layout tokens are contextual:
+     --numcards   total cards in the current filter (set inline)
+     --index      1-based card position within the stack
+     --pc         per-project accent color (feeds the top strip)
+   ============================================================ */
+.works-stack {
+  --card-height: min(82svh, 520px);
+  --card-gap: 1.25rem;
+  --card-offset: 0.45em; /* fan step between pinned cards */
+  --card-top: 4.5rem; /* clears the floating nav pill */
+  --shrink-step: 0.05; /* scale delta between two neighbours */
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(var(--numcards, 0), var(--card-height));
+  gap: var(--card-gap);
+  padding-bottom: calc(var(--numcards, 0) * var(--card-offset) + var(--card-gap));
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .works-stack {
+    --card-height: clamp(520px, 72svh, 780px);
+    --card-gap: 2rem;
+    --card-offset: 0.6em;
+    --card-top: 5.5rem;
+  }
+}
+
+.works-stack > li {
+  position: sticky;
+  top: var(--card-top);
+  padding-top: calc((var(--index) - 1) * var(--card-offset));
+}
+
+.works-stack__card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.6rem;
+  background: var(--bg-surface);
+  box-shadow: 0 0.4em 1.6em rgba(0, 0, 0, 0.35);
+}
+
+/* Per-project accent hairline across the card top edge */
+.works-stack__card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--pc);
+  opacity: 0.85;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.works-stack__content {
+  display: grid;
+  grid-template-areas: "text art";
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  align-items: stretch;
+  gap: clamp(1.25rem, 3vw, 3.5rem);
+  height: 100%;
+  padding: clamp(1.25rem, 2.5vw, 2.75rem);
+}
+
+/* Mobile: art above text in a shorter stack */
+@media (max-width: 767px) {
+  .works-stack__content {
+    grid-template-areas:
+      "art"
+      "text";
+    grid-template-columns: 1fr;
+    grid-template-rows: 42% 1fr;
+  }
+}
+
+.works-stack__text {
+  grid-area: text;
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: clamp(0.9rem, 1.6vw, 1.4rem);
+  text-align: left;
+}
+
+.works-stack__art {
+  grid-area: art;
+  min-width: 0;
+  margin: 0;
+}
+
+.works-stack__art > * {
+  height: 100%;
+}
+
+/* ── The pile shrink — driven by each card's own view() passage ── */
+@keyframes works-stack-shrink {
+  to {
+    transform: scale(
+      calc(1 - (var(--reverse-index) - 1) * var(--shrink-step, 0.05))
+    );
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .works-stack__content {
+      --reverse-index: calc(var(--numcards) - (var(--index) - 1));
+      transform-origin: 50% 0%;
+      will-change: transform;
+      animation-name: works-stack-shrink;
+      animation-duration: auto; /* timeline drives progress */
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+
+/* ============================================================
+   Preloader — 3D orbital loader, themed to the design system.
+   The trio of arcs (champagne / terracotta / ivory) rides the
+   rotateX · rotateY · rotateZ keyframes of the original loader,
+   recolored from design tokens and set on the graphite radial
+   the site uses for its dark surfaces. Decorative, unmounted
+   once the page signals ready (or the hard cap elapses).
+   ============================================================ */
+.preloader {
+  --loader-size: 72px;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+    circle farthest-corner at center,
+    var(--bg-elevated) 0%,
+    var(--bg) 100%
+  );
+  overflow: hidden;
+}
+
+@keyframes preloader-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (max-width: 640px) {
+  .preloader {
+    --loader-size: 56px;
+  }
+}
+
+.preloader__stage {
+  display: grid;
+  place-items: center;
+  gap: clamp(1.75rem, 6vh, 3rem);
+  text-align: center;
+}
+
+/* ── The orb ── */
+.loader {
+  position: relative;
+  width: var(--loader-size);
+  height: var(--loader-size);
+  border-radius: 50%;
+  perspective: 800px;
+}
+
+.inner {
+  position: absolute;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.inner.one {
+  left: 0%;
+  top: 0%;
+  animation: rotate-one 1s linear infinite;
+  border-bottom: 3px solid var(--accent); /* champagne */
+}
+
+.inner.two {
+  right: 0%;
+  top: 0%;
+  animation: rotate-two 1s linear infinite;
+  border-right: 3px solid var(--accent2); /* terracotta */
+}
+
+.inner.three {
+  right: 0%;
+  bottom: 0%;
+  animation: rotate-three 1s linear infinite;
+  border-top: 3px solid rgba(230, 230, 225, 0.55); /* ivory */
+}
+
+@keyframes rotate-one {
+  0% {
+    transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+  }
+}
+
+@keyframes rotate-two {
+  0% {
+    transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+  }
+}
+
+@keyframes rotate-three {
+  0% {
+    transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+  }
+}
+
+/* ── Brand lockup ── */
+.preloader__brand {
+  display: grid;
+  justify-items: center;
+  gap: 1.1rem;
+}
+
+.preloader__brand > span {
+  font-family: var(--font-display), "Syne", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.4rem, 4vw, 2.1rem);
+  line-height: 1;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-left: 0.32em; /* optical balance for the tracking */
+}
+
+.preloader__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--fg-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.preloader__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--accent);
+  animation: preloader-pulse 1.6s ease-in-out infinite;
+}
+
+.preloader__progress {
+  position: relative;
+  width: min(200px, 52vw);
+  height: 1px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.preloader__progress > span {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  background: var(--accent);
+}
+
+/* ============================================================
+   Disappearing effect — content dissolves as it scrolls out.
+   Any element marked [data-dissolve] fades, blurs and sinks
+   over its own exit passage (`exit` == the element leaving the
+   top of the viewport), so the whole site "disintegrates" as
+   the visitor scrolls down. Progressively enhanced: without
+   animation-timeline support the base states stay fully
+   visible. Tunable per element:
+     --dissolve-start   where in the exit passage the fade begins
+     --dissolve-rise    upward drift in cqh (1 = 1% viewport h)
+     --dissolve-blur    residue blur radius in px
+     --dissolve-scale   terminal scale (slight settle)
+   ============================================================ */
+@keyframes dissolve-out {
+  to {
+    opacity: 0;
+    transform: translateY(calc(var(--dissolve-rise, 2.5) * -1cqh))
+      scale(var(--dissolve-scale, 0.985));
+    /* filter:blur removed — forces repaint every scroll frame.
+       opacity + transform alone are compositor-only. */
+    visibility: hidden;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-dissolve] {
+      animation-name: dissolve-out;
+      animation-duration: auto; /* timeline drives progress */
+      animation-timing-function: var(--ease-scroll);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: exit var(--dissolve-start, 0%) exit 100%;
+      will-change: transform, opacity;
+    }
+    /* gentle variant — small copy blocks / cover art */
+    [data-dissolve~="subtle"] {
+      --dissolve-rise: 1.5;
+      --dissolve-scale: 0.992;
+    }
+  }
+}
+
+/* ============================================================
+   PARTY MODE — type "party" anywhere. Registering the accent
+   tokens as typed custom properties makes them animatable, so
+   a single keyframe on <html> cycles the whole palette through
+   the rainbow. Browsers without @property simply keep the
+   static champagne/terracotta palette.
+   ============================================================ */
+@property --accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #c5a880;
+}
+
+@property --accent2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #b85b35;
+}
+
+@keyframes party-cycle {
+  0% {
+    --accent: #c5a880;
+    --accent2: #b85b35;
+  }
+  14% {
+    --accent: #e8c74d;
+    --accent2: #d97b29;
+  }
+  28% {
+    --accent: #7ac74f;
+    --accent2: #2f9e44;
+  }
+  42% {
+    --accent: #45b8ac;
+    --accent2: #1d7d80;
+  }
+  57% {
+    --accent: #5b8def;
+    --accent2: #3f51b5;
+  }
+  71% {
+    --accent: #a06cd5;
+    --accent2: #6d3b9e;
+  }
+  85% {
+    --accent: #e05780;
+    --accent2: #b13a6b;
+  }
+  100% {
+    --accent: #c5a880;
+    --accent2: #b85b35;
+  }
+}
+
+html.party-mode {
+  animation: party-cycle 8s linear infinite;
+}
+
+/* ============================================================
+   CRT texture — scanlines + vignette for the easter-egg
+   terminal and the 404 "signal lost" screen. Purely decorative
+   pseudo-elements, pointer-events: none.
+   ============================================================ */
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 58%,
+    rgba(0, 0, 0, 0.28) 100%
+  );
+}
+
+@keyframes terminal-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: terminal-blink 1.06s steps(1) infinite;
+}
+/* ============================================================
+   ANIME FX — Decorative energy effects
+   ============================================================ */
+
+/* ── Speed Lines (behind hero) ─────────────────────────── */
+.anime-speed-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.anime-speed-lines__line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 2px;
+  transform-origin: 0% 50%;
+  background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.anime-speed-lines.active .anime-speed-lines__line {
+  animation: speed-line-fire 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes speed-line-fire {
+  0% { opacity: 0; transform: scaleX(0) rotate(var(--sl-angle)); }
+  15% { opacity: 0.7; }
+  50% { opacity: 0.35; }
+  100% { opacity: 0; transform: scaleX(1) rotate(var(--sl-angle)); }
+}
+
+/* ── Anime Glow / Aura ────────────────────────────────── */
+.anime-glow { position: relative; }
+.anime-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent));
+  opacity: 0;
+  z-index: -1;
+  filter: blur(12px);
+  transition: opacity 0.4s ease-out;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .anime-glow:hover::before { opacity: 0.35; }
+}
+
+/* ── Chromatic Aberration / Glitch Text ────────────────── */
+.anime-glitch { position: relative; }
+.anime-glitch::before,
+.anime-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+.anime-glitch::before {
+  color: #ff006e;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  animation: glitch-top 3.5s steps(2) infinite;
+}
+.anime-glitch::after {
+  color: #00f0ff;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  animation: glitch-bottom 3.5s steps(2) infinite;
+}
+@keyframes glitch-top {
+  0%, 92% { transform: translate(0); }
+  93% { transform: translate(-3px, -1px); }
+  94% { transform: translate(3px, 1px); }
+  95% { transform: translate(-1px, -2px); }
+  96% { transform: translate(0); }
+}
+@keyframes glitch-bottom {
+  0%, 91% { transform: translate(0); }
+  92% { transform: translate(2px, 1px); }
+  93% { transform: translate(-2px, -1px); }
+  94% { transform: translate(3px, 0px); }
+  95% { transform: translate(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anime-glitch::before, .anime-glitch::after { display: none; }
+}
+
+/* ── Energy Pulse Ring ─────────────────────────────────── */
+.anime-energy-pulse {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.anime-energy-pulse.active {
+  animation: energy-pulse-expand 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes energy-pulse-expand {
+  0% { transform: scale(0.3); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Impact Flash ──────────────────────────────────────── */
+.anime-impact-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: white;
+  pointer-events: none;
+  opacity: 0;
+}
+.anime-impact-flash.active {
+  animation: impact-burst 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes impact-burst {
+  0% { opacity: 0.35; }
+  30% { opacity: 0.12; }
+  100% { opacity: 0; }
+}
+
+/* ── Screen Shake ──────────────────────────────────────── */
+.anime-shake {
+  animation: anime-shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes anime-shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* ── Floating Katakana Decorative Text ─────────────────── */
+.anime-deco-text {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: clamp(6rem, 18vw, 20rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0.035;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  color: var(--fg);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 40px rgba(197, 168, 128, 0.1);
+}
+
+.anime-kanji-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Speed Streak ──────────────────────────────────────── */
+.anime-streak {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.anime-streak.active {
+  animation: streak-fly 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes streak-fly {
+  0% { opacity: 0; transform: translateX(-100%) scaleX(0.3); }
+  20% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateX(200%) scaleX(1); }
+}
+
+/* ── Floating Petal / Particle ─────────────────────────── */
+@keyframes petal-float {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.4; }
+  100% {
+    transform: translate3d(var(--petal-dx, 60px), var(--petal-dy, 800px), 0) rotate(var(--petal-rot, 360deg));
+    opacity: 0;
+  }
+}
+.anime-petal {
+  position: absolute;
+  width: var(--petal-size, 8px);
+  height: var(--petal-size, 8px);
+  border-radius: 50% 0 50% 0;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: petal-float var(--petal-dur, 8s) var(--petal-delay, 0s) ease-in-out infinite;
+}
+
+/* ============================================================
+   MANGA SFX STAMPS — click-burst onomatopoeia
+   ============================================================ */
+@keyframes sfx-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--sfx-rot, -8deg)) scale(0.2);
+    filter: blur(4px);
+  }
+  18% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translate(-50%, -60%) rotate(var(--sfx-rot, -8deg)) scale(calc(var(--sfx-scale, 1) * 1.18));
+  }
+  55% {
+    opacity: 0.85;
+    transform: translate(-50%, -65%) rotate(var(--sfx-rot, -8deg)) scale(var(--sfx-scale, 1));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -90%) rotate(var(--sfx-rot, -8deg)) scale(calc(var(--sfx-scale, 1) * 0.8));
+    filter: blur(3px);
+  }
+}
+
+.anime-sfx-stamp {
+  position: absolute;
+  font-family: var(--font-display), "Syne", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  animation: sfx-burst 0.88s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  /* Outline stroke for manga pop */
+  -webkit-text-stroke: 1.5px #0f1012;
+  paint-order: stroke fill;
+  text-shadow:
+    2px 2px 0 #0f1012,
+    -1px -1px 0 #0f1012,
+    0 0 20px currentColor;
+}
+
+/* ── Glowing scan line that sweeps the hero on load ─────── */
+@keyframes hero-scan {
+  0% { transform: translateY(-100%); opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+.anime-hero-scan {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  pointer-events: none;
+  animation: hero-scan 1.6s cubic-bezier(0.4, 0, 0.6, 1) 0.5s 1 forwards;
+  opacity: 0;
+  z-index: 5;
+}
+
+/* ============================================================
+   SVG ambient animations — hero orbit rings, divider comet,
+   footer wave. Perf contract: every infinite loop animates
+   ONLY `transform` on ROOT <svg> elements, so each one is
+   promoted to its own GPU compositor layer (transforms on
+   inner <g> elements would repaint the whole SVG every frame).
+   Loops pause/unmount off-screen and render static under
+   prefers-reduced-motion.
+   ============================================================ */
+.orbit-spin {
+  animation: orbit-spin linear infinite;
+  will-change: transform;
+}
+.orbit-spin.reverse {
+  animation-direction: reverse;
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.svg-paused .orbit-spin,
+.svg-paused .wave-drift {
+  animation-play-state: paused;
+}
+
+.divider-comet {
+  animation: comet-sweep 7s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+@keyframes comet-sweep {
+  0% {
+    transform: translateX(-150px);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  46% {
+    transform: translateX(calc(100vw + 60px));
+    opacity: 1;
+  }
+  48%,
+  100% {
+    transform: translateX(calc(100vw + 60px));
+    opacity: 0;
+  }
+}
+
+.wave-drift {
+  animation: wave-drift linear infinite;
+  will-change: transform;
+}
+.wave-drift.reverse {
+  animation-direction: reverse;
+}
+@keyframes wave-drift {
+  to {
+    transform: translateX(-50%); /* half of the 200%-wide svg = one tile */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin,
+  .divider-comet,
+  .wave-drift {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   EXPERIENCE TIMELINE SLIDE FX — anime accents for the
+   Experience section. Uses ONLY the existing theme vars
+   (--accent / --accent2 / --fg), so the site palette is
+   completely untouched.
+   ============================================================ */
+
+/* ── Soft directional impact shake when the timeline slides.
+   --exp-dir is +1 (next) or -1 (prev), set from JS. ────── */
+@keyframes exp-shake-soft {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(calc(var(--exp-dir, 1) * -5px), 0, 0); }
+  50% { transform: translate3d(calc(var(--exp-dir, 1) * 4px), 0, 0); }
+  75% { transform: translate3d(calc(var(--exp-dir, 1) * -2px), 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.exp-shake-soft {
+  animation: exp-shake-soft 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  will-change: transform;
+}
+
+/* ── Reverse direction speed streaks (timeline slid back) ── */
+.anime-streak.active.reverse {
+  animation: streak-fly-rev 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes streak-fly-rev {
+  0% { opacity: 0; transform: translateX(100%) scaleX(0.3); }
+  20% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateX(-200%) scaleX(1); }
+}
+
+/* ── Sheen sweep across a milestone card the moment it
+   becomes active (sliding light pass, anime style) ─────── */
+.exp-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.exp-sheen::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 38%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 60%,
+    transparent 100%
+  );
+  transform: translateX(-160%) skewX(-12deg);
+  animation: exp-sheen-sweep 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards;
+}
+@keyframes exp-sheen-sweep {
+  to { transform: translateX(380%) skewX(-12deg); }
+}
+
+/* ── Accent underline that slides in under the active
+   card's year (scaleX driven by framer-motion) ─────────── */
+.exp-underline {
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transform-origin: 0 50%;
+}
+
+/* ── Reduced motion — kill every decorative slide effect ── */
+@media (prefers-reduced-motion: reduce) {
+  .exp-shake-soft { animation: none; }
+  .exp-sheen::after { animation: none; opacity: 0; }
+  .anime-streak { display: none; }
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
